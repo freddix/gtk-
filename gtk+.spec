@@ -1,12 +1,13 @@
 Summary:	The Gimp Toolkit
 Name:		gtk+
-Version:	2.24.13
+Version:	2.24.14
 Release:	1
 Epoch:		2
 License:	LGPL
 Group:		X11/Libraries
 Source0:	http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-%{version}.tar.xz
-# Source0-md5:	e949406751df51e1e40e85628005a069
+# Source0-md5:	e2c16f119ed624893ecfc3775930ae4c
+Patch0:		%{name}-multilib.patch
 URL:		http://www.gtk.org/
 BuildRequires:	atk-devel
 BuildRequires:	autoconf
@@ -44,6 +45,14 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		abivers		2.10.0
 
+%ifarch %{x8664}
+%define		march           -64
+%define		_sysconfdir     /etc/gtk-2.0%{march}
+%else
+%define		march		%{nil}
+%define		_sysconfdir	/etc/gtk-2.0
+%endif
+
 %description
 GTK+, which stands for the Gimp ToolKit, is a library for creating
 graphical user interfaces for the X Window System. It is designed to
@@ -76,6 +85,7 @@ Utility to update icon cache used by GTK+ library.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %{__gtkdocize}
@@ -97,7 +107,7 @@ Utility to update icon cache used by GTK+ library.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_examplesdir}/%{name}-%{version},%{_sysconfdir}/gtk-2.0} \
+install -d $RPM_BUILD_ROOT%{_sysconfdir} \
 	$RPM_BUILD_ROOT%{_libdir}/gtk-2.0/%{abivers}/filesystems
 
 %{__make} install \
@@ -105,7 +115,7 @@ install -d $RPM_BUILD_ROOT{%{_examplesdir}/%{name}-%{version},%{_sysconfdir}/gtk
 	m4datadir=%{_aclocaldir} \
 	pkgconfigdir=%{_pkgconfigdir}
 
-touch $RPM_BUILD_ROOT%{_sysconfdir}/gtk-2.0/gtk.immodules
+touch $RPM_BUILD_ROOT%{_sysconfdir}/gtk.immodules
 
 # shut up check-files (static modules and *.la for modules)
 rm -rf $RPM_BUILD_ROOT%{_libdir}/gtk-2.0/2.*/*/*.la
@@ -118,19 +128,24 @@ rm -r $RPM_BUILD_ROOT%{_datadir}/locale/{az_IR,ca@valencia,crh,io,my,ps}
 
 %find_lang %{name} --all-name
 
+# multiarch
+%ifarch %{x8664}
+mv $RPM_BUILD_ROOT%{_bindir}/gtk-query-immodules-2.0{,%{march}}
+%endif
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
 /usr/sbin/ldconfig
 umask 022
-%{_bindir}/gtk-query-immodules-2.0 >%{_sysconfdir}/gtk-2.0/gtk.immodules ||:
+%{_bindir}/gtk-query-immodules-2.0%{march} >%{_sysconfdir}/gtk.immodules ||:
 
 %postun
 /usr/sbin/ldconfig
 if [ "$1" != "0" ]; then
 	umask 022
-	%{_bindir}/gtk-query-immodules-2.0 >%{_sysconfdir}/gtk-2.0/gtk.immodules ||:
+	%{_bindir}/gtk-query-immodules-2.0%{march} >%{_sysconfdir}/gtk.immodules ||:
 fi
 
 %files -f %{name}.lang
@@ -164,9 +179,9 @@ fi
 %dir %{_datadir}/themes/Emacs/gtk-*
 %dir %{_datadir}/themes/Raleigh
 %dir %{_datadir}/themes/Raleigh/gtk-*
-%dir %{_sysconfdir}/gtk-2.0
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/gtk-2.0/im-multipress.conf
-%ghost %{_sysconfdir}/gtk-2.0/gtk.immodules
+%dir %{_sysconfdir}
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/im-multipress.conf
+%ghost %{_sysconfdir}/gtk.immodules
 %{_datadir}/themes/Default/gtk-*/gtkrc
 %{_datadir}/themes/Emacs/gtk-*/gtkrc
 %{_datadir}/themes/Raleigh/gtk-*/gtkrc
@@ -191,8 +206,8 @@ fi
 %files apidocs
 %defattr(644,root,root,755)
 %{_gtkdocdir}/gail-libgail-util
-%{_gtkdocdir}/gdk
-%{_gtkdocdir}/gtk
+%{_gtkdocdir}/gdk2
+%{_gtkdocdir}/gtk2
 
 %files update-icon-cache
 %defattr(644,root,root,755)
