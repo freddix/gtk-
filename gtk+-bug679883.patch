@@ -1,0 +1,14 @@
+diff -aurN gtk+-2.24.14.orig/modules/printbackends/cups/gtkprintbackendcups.c gtk+-2.24.14/modules/printbackends/cups/gtkprintbackendcups.c
+--- gtk+-2.24.14.orig/modules/printbackends/cups/gtkprintbackendcups.c	2012-12-23 09:27:01.936056874 +0100
++++ gtk+-2.24.14/modules/printbackends/cups/gtkprintbackendcups.c	2012-12-23 09:28:23.450871589 +0100
+@@ -558,8 +558,8 @@
+         }
+     }
+ 
+-  /* Add "Custom." prefix to custom values. */
+-  if (custom_value)
++  /* Add "Custom." prefix to custom values if not already added. */
++  if (custom_value && !g_str_has_prefix (value, "Custom."))
+     {
+       new_value = g_strdup_printf ("Custom.%s", value);
+       gtk_cups_request_encode_option (request, key, new_value);
