@@ -1,14 +1,13 @@
 Summary:	The Gimp Toolkit
 Name:		gtk+
-Version:	2.24.14
-Release:	2
+Version:	2.24.16
+Release:	1
 Epoch:		2
 License:	LGPL
 Group:		X11/Libraries
 Source0:	http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-%{version}.tar.xz
-# Source0-md5:	e2c16f119ed624893ecfc3775930ae4c
+# Source0-md5:	ea8ba95edd3896eca2d48450080d1f2d
 Patch0:		%{name}-multilib.patch
-Patch1:		%{name}-bug679883.patch
 URL:		http://www.gtk.org/
 BuildRequires:	atk-devel
 BuildRequires:	autoconf
@@ -87,7 +86,6 @@ Utility to update icon cache used by GTK+ library.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
 %build
 %{__gtkdocize}
