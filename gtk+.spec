@@ -1,12 +1,12 @@
 Summary:	The Gimp Toolkit
 Name:		gtk+
-Version:	2.24.22
+Version:	2.24.23
 Release:	1
 Epoch:		2
 License:	LGPL
 Group:		X11/Libraries
 Source0:	http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-%{version}.tar.xz
-# Source0-md5:	5fbbfb7637bbd571a572a2dae0e736d2
+# Source0-md5:	0be39fbed4ca125645175cd6e22f2548
 Patch0:		%{name}-multilib.patch
 URL:		http://www.gtk.org/
 BuildRequires:	atk-devel
