@@ -1,13 +1,12 @@
 Summary:	The Gimp Toolkit
 Name:		gtk+
-Version:	2.24.23
-Release:	1
+Version:	2.24.24
+Release:	2
 Epoch:		2
 License:	LGPL
 Group:		X11/Libraries
 Source0:	http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-%{version}.tar.xz
-# Source0-md5:	0be39fbed4ca125645175cd6e22f2548
-Patch0:		%{name}-multilib.patch
+# Source0-md5:	f80ac8aa95ea8482ad89656d0370752e
 URL:		http://www.gtk.org/
 BuildRequires:	atk-devel
 BuildRequires:	autoconf
@@ -45,14 +44,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		abivers		2.10.0
 
-%ifarch %{x8664}
-%define		march           _lib64
-%define		_sysconfdir     /etc/gtk-2.0%{march}
-%else
-%define		march		%{nil}
-%define		_sysconfdir	/etc/gtk-2.0
-%endif
-
 %description
 GTK+, which stands for the Gimp ToolKit, is a library for creating
 graphical user interfaces for the X Window System. It is designed to
@@ -85,7 +76,6 @@ Utility to update icon cache used by GTK+ library.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -118,20 +108,16 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir} \
 touch $RPM_BUILD_ROOT%{_sysconfdir}/gtk.immodules
 
 # shut up check-files (static modules and *.la for modules)
-rm -rf $RPM_BUILD_ROOT%{_libdir}/gtk-2.0/2.*/*/*.la
-rm -rf $RPM_BUILD_ROOT%{_libdir}/gtk-2.0/modules/*.la
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/gtk-2.0/2.*/*/*.la
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/gtk-2.0/modules/*.la
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/*.la
 
-rm -rf $RPM_BUILD_ROOT%{_datadir}/gtk-*/demo
+%{__rm} -r $RPM_BUILD_ROOT%{_datadir}/gtk-*/demo
 
 # remove unsupported locale scheme
 rm -r $RPM_BUILD_ROOT%{_datadir}/locale/{az_IR,ca@valencia,crh,io,my,ps}
 
 %find_lang %{name} --all-name
-
-# multiarch
-%ifarch %{x8664}
-mv $RPM_BUILD_ROOT%{_bindir}/gtk-query-immodules-2.0{,%{march}}
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -139,13 +125,13 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /usr/sbin/ldconfig
 umask 022
-%{_bindir}/gtk-query-immodules-2.0%{march} >%{_sysconfdir}/gtk.immodules ||:
+%{_bindir}/gtk-query-immodules-2.0 >%{_sysconfdir}/gtk.immodules ||:
 
 %postun
 /usr/sbin/ldconfig
 if [ "$1" != "0" ]; then
 	umask 022
-	%{_bindir}/gtk-query-immodules-2.0%{march} >%{_sysconfdir}/gtk.immodules ||:
+	%{_bindir}/gtk-query-immodules-2.0 >%{_sysconfdir}/gtk.immodules ||:
 fi
 
 %files -f %{name}.lang
@@ -179,8 +165,8 @@ fi
 %dir %{_datadir}/themes/Emacs/gtk-*
 %dir %{_datadir}/themes/Raleigh
 %dir %{_datadir}/themes/Raleigh/gtk-*
-%dir %{_sysconfdir}
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/im-multipress.conf
+%dir %{_sysconfdir}/gtk-2.0
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/gtk-2.0/im-multipress.conf
 %ghost %{_sysconfdir}/gtk.immodules
 %{_datadir}/themes/Default/gtk-*/gtkrc
 %{_datadir}/themes/Emacs/gtk-*/gtkrc
